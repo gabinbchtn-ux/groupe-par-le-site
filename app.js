@@ -227,3 +227,4 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(t => {
             const li = document.createElement('li');
             li.text
+        }

@@ -15,35 +15,41 @@ const LS = {
    Tout le code s’exécute après le DOM chargé
 ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+   
+   /* ---------- 1️⃣ Chat synchronisé avec Firebase ---------- */
+// Les éléments restent les mêmes
+const chatWindow = document.getElementById('chatWindow');
+const chatInput  = document.getElementById('chatInput');
+const sendBtn    = document.getElementById('sendBtn');
 
-    /* ---------- 1️⃣ Chat (local) ---------- */
-    const chatWindow = document.getElementById('chatWindow');
-    const chatInput  = document.getElementById('chatInput');
-    const sendBtn    = document.getElementById('sendBtn');
+// Référence vers la branche "chat" de la DB
+const chatRef = firebase.database().ref('chat');
 
-    function renderChat() {
-        const msgs = LS.get('chatMsgs', []);
-        chatWindow.innerHTML = '';
-        msgs.forEach(m => {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            div.textContent = m;
-            chatWindow.appendChild(div);
-        });
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    sendBtn.addEventListener('click', () => {
-        const txt = chatInput.value.trim();
-        if (!txt) return;
-        const msgs = LS.get('chatMsgs', []);
-        msgs.push(txt);
-        LS.set('chatMsgs', msgs);
-        chatInput.value = '';
-        renderChat();
+// Écoute en temps réel des nouveaux messages
+chatRef.on('value', snapshot => {
+    const msgs = snapshot.val() || [];
+    chatWindow.innerHTML = '';
+    msgs.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        div.textContent = m;
+        chatWindow.appendChild(div);
     });
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+});
 
-    renderChat();
+sendBtn.addEventListener('click', () => {
+    const txt = chatInput.value.trim();
+    if (!txt) return;
+    // On récupère la liste actuelle, on y ajoute le nouveau texte, puis on pousse tout
+    chatRef.once('value').then(snap => {
+        const msgs = snap.val() || [];
+        msgs.push(txt);
+        return chatRef.set(msgs);
+    }).then(() => {
+        chatInput.value = '';
+    }).catch(err => console.error('Erreur Firebase :', err));
+});
 
     /* ---------- 2️⃣ Todo‑list ---------- */
     const newTask   = document.getElementById('newTask');
@@ -233,4 +239,5 @@ document.addEventListener('DOMContentLoaded', () => {
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+
 

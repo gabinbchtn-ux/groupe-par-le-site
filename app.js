@@ -17,38 +17,86 @@ const LS = {
 document.addEventListener('DOMContentLoaded', () => {
    
    /* ---------- 1️⃣ Chat synchronisé avec Firebase ---------- */
-// Les éléments restent les mêmes
-const chatWindow = document.getElementById('chatWindow');
-const chatInput  = document.getElementById('chatInput');
-const sendBtn    = document.getElementById('sendBtn');
+document.addEventListener('DOMContentLoaded', () => {
+    const chatWindow = document.getElementById('chatWindow');
+    const chatInput  = document.getElementById('chatInput');
+    const sendBtn    = document.getElementById('sendBtn');
 
-// Référence vers la branche "chat" de la DB
-const chatRef = firebase.database().ref('chat');
+    // Référence à la branche "chat" de la base
+    const chatRef = db.ref('chat');   // <-- `db` vient du script du <head>
 
-// Écoute en temps réel des nouveaux messages
-chatRef.on('value', snapshot => {
-    const msgs = snapshot.val() || [];
-    chatWindow.innerHTML = '';
-    msgs.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'chat-msg';
-        div.textContent = m;
-        chatWindow.appendChild(div);
+    // ----- Écoute en temps réel -----
+    chatRef.on('value', snapshot => {
+        const msgs = snapshot.val() || [];
+        chatWindow.innerHTML = '';
+        msgs.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.textContent = m;
+            chatWindow.appendChild(div);
+        });
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     });
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-});
 
-sendBtn.addEventListener('click', () => {
-    const txt = chatInput.value.trim();
-    if (!txt) return;
-    // On récupère la liste actuelle, on y ajoute le nouveau texte, puis on pousse tout
-    chatRef.once('value').then(snap => {
-        const msgs = snap.val() || [];
-        msgs.push(txt);
-        return chatRef.set(msgs);
-    }).then(() => {
-        chatInput.value = '';
-    }).catch(err => console.error('Erreur Firebase :', err));
+    // ----- Envoi d’un nouveau message -----
+    sendBtn.addEventListener('click', () => {
+        const txt = chatInput.value.trim();
+        if (!txt) return;
+
+        // On récupère la liste actuelle, on y ajoute le nouveau texte, puis on la ré‑écrit
+        chatRef.once('value')
+            .then(snap => {
+                const msgs = snap.val() || [];
+                msgs.push(txt);
+                return chatRef.set(msgs);
+            })
+            .then(() => {
+                chatInput.value = '';
+            })
+            .catch(err => console.error('Erreur Firebase :', err));
+    });
+
+    /* -----------------------------------------------------------------
+       Le reste de votre script (todo‑list, notes, calendrier, etc.)
+       peut rester exactement comme avant – il utilise toujours localStorage.
+       ----------------------------------------------------------------- */
+
+    /* ------------------- TODO LIST (exemple) ----------------------- */
+    const newTask   = document.getElementById('newTask');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskList   = document.getElementById('taskList');
+
+    function renderTasks() {
+        const tasks = LS.get('tasks', []);
+        taskList.innerHTML = '';
+        tasks.forEach((t, i) => {
+            const li = document.createElement('li');
+            li.textContent = t;
+            li.addEventListener('click', () => {
+                const arr = LS.get('tasks', []);
+                arr.splice(i, 1);
+                LS.set('tasks', arr);
+                renderTasks();
+            });
+            taskList.appendChild(li);
+        });
+    }
+
+    addTaskBtn.addEventListener('click', () => {
+        const txt = newTask.value.trim();
+        if (!txt) return;
+        const arr = LS.get('tasks', []);
+        arr.push(txt);
+        LS.set('tasks', arr);
+        newTask.value = '';
+        renderTasks();
+    });
+
+    renderTasks();
+
+    /* --------------------------------------------------------------- */
+    /* (Toutes les autres sections – notes, calendrier, compteur, …) */
+    /* restent inchangées – vous n’avez rien à modifier ici.          */
 });
 
     /* ---------- 2️⃣ Todo‑list ---------- */
@@ -239,6 +287,7 @@ sendBtn.addEventListener('click', () => {
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+
 
 
 

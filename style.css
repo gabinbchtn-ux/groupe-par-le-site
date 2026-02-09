@@ -107,13 +107,17 @@ footer {
 }
 
 /* ==== Responsiveness ==== */
-@media (min-width: 800px) {
+/* 1 colonne sur petits écrans */
+@media (max-width: 599px) {
+    main { grid-template-columns: 1fr; }
+}
+
+/* 2 colonnes à partir de 600 px */
+@media (min-width: 600px) and (max-width: 1199px) {
     main { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* 3 colonnes à partir de 1200 px */
 @media (min-width: 1200px) {
     main { grid-template-columns: repeat(3, 1fr); }
 }
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-

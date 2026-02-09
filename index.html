@@ -2,84 +2,83 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Site de partage</title>
+    <title>Espace partagé – Ludo & Alex</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-    <h1> Notre espace partagé</h1>
+    <h1>🛠️ Notre espace partagé</h1>
     <button id="themeToggle">🌙 Mode sombre</button>
 </header>
 
 <main>
-    <!-- 1️⃣ Chat en temps réel (demo local) -->
+    <!-- 1️⃣ Chat (local) -->
     <section class="card" id="chat">
-        <h2> Chat (local)</h2>
+        <h2>💬 Chat (local)</h2>
         <div class="chat-window" id="chatWindow"></div>
         <input type="text" id="chatInput" placeholder="Écrire un message…">
         <button id="sendBtn">Envoyer</button>
     </section>
 
-    <!-- 2️⃣ Todo‑list partagée (local) -->
+    <!-- 2️⃣ Todo‑list -->
     <section class="card" id="todo">
-        <h2> Todo‑list</h2>
+        <h2>✅ Todo‑list</h2>
         <input type="text" id="newTask" placeholder="Nouvelle tâche…">
         <button id="addTaskBtn">Ajouter</button>
         <ul id="taskList"></ul>
     </section>
 
-    <!-- 3️⃣ Bloc‑notes collaboratif (local) -->
+    <!-- 3️⃣ Bloc‑notes -->
     <section class="card" id="notes">
-        <h2> Bloc‑notes</h2>
+        <h2>🗒️ Bloc‑notes</h2>
         <div id="noteArea" contenteditable="true" spellcheck="false"></div>
         <button id="saveNoteBtn">Enregistrer</button>
     </section>
 
-    <!-- 4️⃣ Calendrier partagé (simple) -->
+    <!-- 4️⃣ Calendrier simple -->
     <section class="card" id="calendar">
-        <h2> Calendrier</h2>
+        <h2>📅 Calendrier</h2>
         <input type="date" id="eventDate">
         <input type="text" id="eventDesc" placeholder="Description de l’événement">
         <button id="addEventBtn">Ajouter</button>
         <ul id="eventList"></ul>
     </section>
 
-    <!-- 7️⃣ Compteur de jours depuis/until -->
+    <!-- 7️⃣ Compteur de jours -->
     <section class="card" id="counter">
-        <h2> Compteur de jours</h2>
+        <h2>⏳ Compteur de jours</h2>
         <label for="targetDate">Date cible :</label>
         <input type="date" id="targetDate">
         <button id="calcBtn">Calculer</button>
         <p id="result"></p>
     </section>
 
-    <!-- 11️⃣ Barre de recherche interne -->
+    <!-- 11️⃣ Recherche interne -->
     <section class="card" id="search">
-        <h2> Recherche interne</h2>
-        <input type="text" id="searchBox" placeholder="Rechercher dans notes, tâches, événements…">
+        <h2>🔎 Recherche interne</h2>
+        <input type="text" id="searchBox"
+               placeholder="Rechercher dans notes, tâches, événements…">
         <ul id="searchResults"></ul>
     </section>
 
-    <!-- 12️⃣ Mode sombre / clair (toggle already in header) -->
-    <!-- 15️⃣ Section « À faire ce week‑end » (filtrage de la todo‑list) -->
+    <!-- 15️⃣ À faire ce week‑end -->
     <section class="card" id="weekend">
-        <h2> À faire ce week‑end</h2>
+        <h2>🗓️ À faire ce week‑end</h2>
         <button id="showWeekendBtn">Afficher les tâches du week‑end</button>
         <ul id="weekendList"></ul>
     </section>
 
-    <!-- 17️⃣ Statistiques d’usage (visites) -->
+    <!-- 17️⃣ Statistiques d’usage -->
     <section class="card" id="stats">
-        <h2> Statistiques d’usage</h2>
+        <h2>📈 Statistiques d’usage</h2>
         <p>Visites totales : <span id="visitCount">0</span></p>
     </section>
 </main>
 
 <footer>
-    <small>Créé par Gabin Bucheton – aucune donnée n’est envoyée à un serveur.</small>
+    <small>Créé pour deux amis – aucune donnée n’est envoyée à un serveur.</small>
 </footer>
 
 <script src="app.js"></script>
 </body>
 </html>
-

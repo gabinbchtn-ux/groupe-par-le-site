@@ -1,4 +1,4 @@
-/* ==== Reset & basics ==== */
+/* ==== Reset ==== */
 *,
 *::before,
 *::after {
@@ -25,7 +25,7 @@ main {
     margin: 0 auto;
 }
 
-/* ==== Light / Dark variables ==== */
+/* ==== Light / Dark ==== */
 :root {
     --bg: #f5f5f5;
     --txt: #222;
@@ -42,7 +42,7 @@ main {
     --header-bg: #0044aa;
 }
 
-/* ==== Cards ==== */
+/* ==== Card style ==== */
 .card {
     background: var(--card-bg);
     border-radius: 8px;
@@ -66,11 +66,8 @@ main {
     margin: .3rem 0;
 }
 
-/* ==== Todo ==== */
-#taskList,
-#eventList,
-#weekendList,
-#searchResults {
+/* ==== Lists ==== */
+ul {
     list-style: none;
     padding-left: 0;
 }
@@ -109,14 +106,14 @@ footer {
     font-size: .85rem;
 }
 
-/* ==== Responsive ==== */
+/* ==== Responsiveness ==== */
 @media (min-width: 800px) {
-    main {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    main { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 1200px) {
-    main {
+    main { grid-template-columns: repeat(3, 1fr); }
+}
         grid-template-columns: repeat(3, 1fr);
     }
 }
+

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Page partagée – Todo & Bloc‑notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🛠️ Notre espace partagé</h1>
+        <button id="themeToggle">🌙 Mode sombre</button>
+    </header>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Todo‑list -->
+    <section id="todo">
+        <h2>✅ Todo‑list</h2>
+        <div class="input-group">
+            <input id="newTask" type="text" placeholder="Nouvelle tâche…" autocomplete="off">
+            <button id="addTaskBtn">Ajouter</button>
+        </div>
+        <ul id="tasks"></ul>
+    </section>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Bloc‑notes -->
+    <section id="notes">
+        <h2>📝 Bloc‑notes</h2>
+        <div id="noteEditor" contenteditable="true" spellcheck="true">
+            Commencez à écrire ici…
+        </div>
+        <small>Les modifications sont sauvegardées automatiquement.</small>
+    </section>
+
+    <footer>
+        <p>Créé par vous deux – <a href="https://github.com/USERNAME/REPO">Voir sur GitHub</a></p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

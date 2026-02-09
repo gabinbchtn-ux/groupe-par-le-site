@@ -1,56 +1,122 @@
-/* ---------- Reset & bases ---------- */
+/* ==== Reset & basics ==== */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
+}
+body {
     margin: 0;
-    padding: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
+    background: var(--bg);
+    color: var(--txt);
 }
-html { font-family: system-ui, sans-serif; line-height: 1.5; }
-body { background:#f5f5f5; color:#222; padding:1rem; max-width:800px; margin:auto; }
-
-/* ---------- Thème sombre ---------- */
-body.dark { background:#111; color:#eee; }
-body.dark a { color:#4eaaff; }
-
-/* ---------- Header ---------- */
-header {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:2rem;
+header, footer {
+    padding: 1rem;
+    text-align: center;
+    background: var(--header-bg);
+    color: var(--header-txt);
 }
-header h1 { font-size:1.8rem; }
-#themeToggle { cursor:pointer; padding:.4rem .8rem; }
-
-/* ---------- Sections ---------- */
-section { background:#fff; padding:1rem; margin-bottom:1.5rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
-body.dark section { background:#222; box-shadow:none; }
-
-/* ----- Todo ----- */
-#todo .input-group { display:flex; gap:.5rem; margin-bottom:.8rem; }
-#todo input { flex:1; padding:.4rem; border:1px solid #ccc; border-radius:4px; }
-#todo button { padding:.4rem .8rem; cursor:pointer; }
-#tasks { list-style:none; }
-#tasks li {
-    padding:.4rem .6rem;
-    border-bottom:1px solid #eee;
-    cursor:pointer;
+main {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
-#tasks li:hover { background:#f0f0f0; }
-body.dark #tasks li:hover { background:#333; }
 
-/* ----- Notes ----- */
-#notes #noteEditor {
-    min-height:150px;
-    border:1px solid #ccc;
-    border-radius:4px;
-    padding:.6rem;
-    overflow:auto;
-    background:#fafafa;
+/* ==== Light / Dark variables ==== */
+:root {
+    --bg: #f5f5f5;
+    --txt: #222;
+    --card-bg: #fff;
+    --card-shadow: rgba(0,0,0,.1);
+    --header-bg: #0066ff;
+    --header-txt: #fff;
 }
-body.dark #notes #noteEditor { background:#1a1a1a; border-color:#555; }
-#notes small { display:block; margin-top:.4rem; color:#666; }
+[data-theme="dark"] {
+    --bg: #1e1e1e;
+    --txt: #eee;
+    --card-bg: #2b2b2b;
+    --card-shadow: rgba(0,0,0,.5);
+    --header-bg: #0044aa;
+}
 
-/* ---------- Footer ---------- */
-footer { text-align:center; font-size:.9rem; margin-top:2rem; }
-footer a { color:#0066cc; text-decoration:none; }
-footer a:hover { text-decoration:underline; }
+/* ==== Cards ==== */
+.card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px var(--card-shadow);
+}
+.card h2 {
+    margin-top: 0;
+}
+
+/* ==== Chat ==== */
+.chat-window {
+    height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: .5rem;
+    margin-bottom: .5rem;
+    background: #fafafa;
+}
+.chat-msg {
+    margin: .3rem 0;
+}
+
+/* ==== Todo ==== */
+#taskList,
+#eventList,
+#weekendList,
+#searchResults {
+    list-style: none;
+    padding-left: 0;
+}
+li {
+    padding: .3rem .5rem;
+    border-bottom: 1px solid #ddd;
+}
+li:hover {
+    background: #eaeaea;
+}
+
+/* ==== Notes ==== */
+#noteArea {
+    min-height: 120px;
+    border: 1px solid #bbb;
+    padding: .5rem;
+    margin-bottom: .5rem;
+    background: #fff;
+}
+
+/* ==== Buttons ==== */
+button {
+    cursor: pointer;
+    background: #0066ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: .4rem .8rem;
+}
+button:hover {
+    background: #0055dd;
+}
+
+/* ==== Footer ==== */
+footer {
+    font-size: .85rem;
+}
+
+/* ==== Responsive ==== */
+@media (min-width: 800px) {
+    main {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1200px) {
+    main {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

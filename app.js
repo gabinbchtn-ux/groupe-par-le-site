@@ -15,15 +15,14 @@ const LS = {
    Tout le code s’exécute après le DOM chargé
 ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-   
-   /* ---------- 1️⃣ Chat synchronisé avec Firebase ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+
+    /* ---------- 1️⃣ Chat synchronisé avec Firebase ---------- */
     const chatWindow = document.getElementById('chatWindow');
     const chatInput  = document.getElementById('chatInput');
     const sendBtn    = document.getElementById('sendBtn');
 
     // Référence à la branche "chat" de la base
-    const chatRef = db.ref('chat');   // <-- `db` vient du script du <head>
+    const chatRef = db.ref('chat');   // `db` provient de index.html
 
     // ----- Écoute en temps réel -----
     chatRef.on('value', snapshot => {
@@ -43,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const txt = chatInput.value.trim();
         if (!txt) return;
 
-        // On récupère la liste actuelle, on y ajoute le nouveau texte, puis on la ré‑écrit
         chatRef.once('value')
             .then(snap => {
                 const msgs = snap.val() || [];
@@ -56,12 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error('Erreur Firebase :', err));
     });
 
-    /* -----------------------------------------------------------------
-       Le reste de votre script (todo‑list, notes, calendrier, etc.)
-       peut rester exactement comme avant – il utilise toujours localStorage.
-       ----------------------------------------------------------------- */
-
-    /* ------------------- TODO LIST (exemple) ----------------------- */
+    /* ------------------- 2️⃣ Todo‑list ------------------- */
     const newTask   = document.getElementById('newTask');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList   = document.getElementById('taskList');
@@ -94,45 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderTasks();
 
-    /* --------------------------------------------------------------- */
-    /* (Toutes les autres sections – notes, calendrier, compteur, …) */
-    /* restent inchangées – vous n’avez rien à modifier ici.          */
-});
-
-    /* ---------- 2️⃣ Todo‑list ---------- */
-    const newTask   = document.getElementById('newTask');
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskList   = document.getElementById('taskList');
-
-    function renderTasks() {
-        const tasks = LS.get('tasks', []);
-        taskList.innerHTML = '';
-        tasks.forEach((t, i) => {
-            const li = document.createElement('li');
-            li.textContent = t;
-            li.addEventListener('click', () => {
-                const arr = LS.get('tasks', []);
-                arr.splice(i, 1);
-                LS.set('tasks', arr);
-                renderTasks();
-            });
-            taskList.appendChild(li);
-        });
-    }
-
-    addTaskBtn.addEventListener('click', () => {
-        const txt = newTask.value.trim();
-        if (!txt) return;
-        const arr = LS.get('tasks', []);
-        arr.push(txt);
-        LS.set('tasks', arr);
-        newTask.value = '';
-        renderTasks();
-    });
-
-    renderTasks();
-
-    /* ---------- 3️⃣ Bloc‑notes ---------- */
+    /* ------------------- 3️⃣ Bloc‑notes ------------------- */
     const noteArea   = document.getElementById('noteArea');
     const saveNoteBtn = document.getElementById('saveNoteBtn');
 
@@ -143,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Note enregistrée');
     });
 
-    /* ---------- 4️⃣ Calendrier simple ---------- */
+    /* ------------------- 4️⃣ Calendrier ------------------- */
     const eventDate   = document.getElementById('eventDate');
     const eventDesc   = document.getElementById('eventDesc');
     const addEventBtn = document.getElementById('addEventBtn');
@@ -177,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderEvents();
 
-    /* ---------- 7️⃣ Compteur de jours ---------- */
+    /* ------------------- 7️⃣ Compteur de jours ------------------- */
     const targetDate = document.getElementById('targetDate');
     const calcBtn    = document.getElementById('calcBtn');
     const resultP    = document.getElementById('result');
@@ -198,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /* ---------- 11️⃣ Recherche interne ---------- */
+    /* ------------------- 11️⃣ Recherche interne ------------------- */
     const searchBox = document.getElementById('searchBox');
     const searchRes = document.getElementById('searchResults');
 
@@ -239,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchBox.addEventListener('input', e => performSearch(e.target.value));
 
-    /* ---------- 12️⃣ Mode sombre / clair ---------- */
+    /* ------------------- 12️⃣ Mode sombre / clair ------------------- */
     const themeToggle = document.getElementById('themeToggle');
 
     function applyTheme(isDark) {
@@ -252,10 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(!currentlyDark);
     });
 
-    // init from storage
+    // Init depuis le stockage
     applyTheme(localStorage.getItem('darkMode') === 'true');
 
-    /* ---------- 15️⃣ À faire ce week‑end ---------- */
+    /* ------------------- 15️⃣ À faire ce week‑end ------------------- */
     const showWeekendBtn = document.getElementById('showWeekendBtn');
     const weekendList    = document.getElementById('weekendList');
 
@@ -271,23 +226,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         filtered.forEach(t => {
             const li = document.createElement('li');
-            li.textContent = t;
-            weekendList.appendChild(li);
-        });
-    });
-
-    /* ---------- 17️⃣ Statistiques d’usage ---------- */
-    const visitSpan = document.getElementById('visitCount');
-    let visits = Number(localStorage.getItem('visits') || 0);
-    visits += 1;
-    localStorage.setItem('visits', visits);
-    visitSpan.textContent = visits;
-
-}); // ← fin DOMContentLoaded
-visits += 1;
-localStorage.setItem('visits', visits);
-visitSpan.textContent = visits;
-
-
-
-
+            li.text

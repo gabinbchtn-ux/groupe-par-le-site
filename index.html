@@ -5,37 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Site de partage et messagerie</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- 1️⃣ SDK Firebase (compat version – plus simple) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- 2️⃣ Configuration Firebase – **DOIT** être placée AVANT votre script app.js -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+            authDomain: "partage-e313d.firebaseapp.com",
+            databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "partage-e313d",
+            storageBucket: "partage-e313d.firebasestorage.app",
+            messagingSenderId: "815247760270",
+            appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+        };
+        // Initialise Firebase
+        firebase.initializeApp(firebaseConfig);
+        // Référence globale que le script app.js utilisera
+        const db = firebase.database();
+    </script>
 </head>
+
 <body>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "firebase/app";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
-      authDomain: "partage-e313d.firebaseapp.com",
-      databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "partage-e313d",
-      storageBucket: "partage-e313d.firebasestorage.app",
-      messagingSenderId: "815247760270",
-      appId: "1:815247760270:web:f079ba6b1a8e22439462df"
-};
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-</script>
 <header>
-    <h1> Notre espace partagé</h1>
+    <h1>Notre espace partagé</h1>
     <button id="themeToggle">🌙 Mode sombre</button>
 </header>
 
 <main>
-    <!-- 1️⃣ Chat (local) -->
+    <!-- 1️⃣ Chat (synchronisé avec Firebase) -->
     <section class="card" id="chat">
         <h2>💬 Chat (local)</h2>
         <div class="chat-window" id="chatWindow"></div>
@@ -102,12 +102,10 @@
     <small>Créé par Gabin Bucheton.</small>
 </footer>
 
+<!-- 5️⃣ Votre script applicatif -->
 <script src="app.js"></script>
 </body>
 </html>
-
-
-
 
 
 

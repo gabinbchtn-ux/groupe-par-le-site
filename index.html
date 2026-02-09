@@ -13,18 +13,18 @@
     <!-- 2️⃣ Configuration Firebase – **DOIT** être placée AVANT votre script app.js -->
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
-            authDomain: "partage-e313d.firebaseapp.com",
-            databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "partage-e313d",
-            storageBucket: "partage-e313d.firebasestorage.app",
-            messagingSenderId: "815247760270",
-            appId: "1:815247760270:web:f079ba6b1a8e22439462df"
-        };
-        // Initialise Firebase
-        firebase.initializeApp(firebaseConfig);
-        // Référence globale que le script app.js utilisera
-        const db = firebase.database();
+        apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+        authDomain: "partage-e313d.firebaseapp.com",
+        databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "partage-e313d",
+        storageBucket: "partage-e313d.firebasestorage.app",
+        messagingSenderId: "815247760270",
+        appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+    };
+    // Initialise Firebase
+    firebase.initializeApp(firebaseConfig);
+    // Rendre la référence disponible partout (global)
+    window.db = firebase.database();   // ← **IMPORTANT**
     </script>
 </head>
 
@@ -106,6 +106,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

@@ -6,25 +6,24 @@
     <title>Site de partage et messagerie</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- 1️⃣ SDK Firebase (compat version – plus simple) -->
+    <!-- SDK Firebase (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- 2️⃣ Configuration Firebase – **DOIT** être placée AVANT votre script app.js -->
+    <!-- Configuration Firebase – rend `db` global -->
     <script>
         const firebaseConfig = {
-        apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
-        authDomain: "partage-e313d.firebaseapp.com",
-        databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "partage-e313d",
-        storageBucket: "partage-e313d.firebasestorage.app",
-        messagingSenderId: "815247760270",
-        appId: "1:815247760270:web:f079ba6b1a8e22439462df"
-    };
-    // Initialise Firebase
-    firebase.initializeApp(firebaseConfig);
-    // Rendre la référence disponible partout (global)
-    window.db = firebase.database();   // ← **IMPORTANT**
+            apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+            authDomain: "partage-e313d.firebaseapp.com",
+            databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "partage-e313d",
+            storageBucket: "partage-e313d.firebasestorage.app",
+            messagingSenderId: "815247760270",
+            appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+        };
+        firebase.initializeApp(firebaseConfig);
+        // ⇢ rendre la référence à la base de données globale
+        window.db = firebase.database();
     </script>
 </head>
 
@@ -102,12 +101,7 @@
     <small>Créé par Gabin Bucheton.</small>
 </footer>
 
-<!-- 5️⃣ Votre script applicatif -->
+<!-- Votre script applicatif -->
 <script src="app.js"></script>
 </body>
 </html>
-
-
-
-
-

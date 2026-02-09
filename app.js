@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn    = document.getElementById('sendBtn');
 
     // Référence à la branche "chat" de la base
-    const chatRef = db.ref('chat');   // `db` provient de index.html
+    const chatRef = db.ref('chat');   // `db` vient de window.db
 
     // ----- Écoute en temps réel -----
     chatRef.on('value', snapshot => {
@@ -227,6 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(t => {
             const li = document.createElement('li');
             li.textContent = t;
+            weekendList.appendChild(li);
+        });
+    });
+
+    /* ----------------
             weekendList.appendChild(li);
         });
     });

@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn    = document.getElementById('sendBtn');
 
     // Référence à la branche "chat" de la base
-    const chatRef = db.ref('chat');   // `db` vient de window.db
+    const chatRef = db.ref('chat');   //
 
     // ----- Écoute en temps réel -----
     chatRef.on('value', snapshot => {
@@ -235,3 +235,4 @@ document.addEventListener('DOMContentLoaded', () => {
             weekendList.appendChild(li);
         });
     });
+

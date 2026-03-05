@@ -16,17 +16,13 @@ const LS = {
 ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ---------- 1️⃣ Chat synchronisé avec Firebase ---------- */
+    /* ---------- 1️⃣ Chat (local) ---------- */
     const chatWindow = document.getElementById('chatWindow');
     const chatInput  = document.getElementById('chatInput');
     const sendBtn    = document.getElementById('sendBtn');
 
-    // Référence à la branche "chat" de la base
-    const chatRef = db.ref('chat');   //
-
-    // ----- Écoute en temps réel -----
-    chatRef.on('value', snapshot => {
-        const msgs = snapshot.val() || [];
+    function renderChat() {
+        const msgs = LS.get('chatMsgs', []);
         chatWindow.innerHTML = '';
         msgs.forEach(m => {
             const div = document.createElement('div');
@@ -35,26 +31,21 @@ document.addEventListener('DOMContentLoaded', () => {
             chatWindow.appendChild(div);
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
-    });
+    }
 
-    // ----- Envoi d’un nouveau message -----
     sendBtn.addEventListener('click', () => {
         const txt = chatInput.value.trim();
         if (!txt) return;
-
-        chatRef.once('value')
-            .then(snap => {
-                const msgs = snap.val() || [];
-                msgs.push(txt);
-                return chatRef.set(msgs);
-            })
-            .then(() => {
-                chatInput.value = '';
-            })
-            .catch(err => console.error('Erreur Firebase :', err));
+        const msgs = LS.get('chatMsgs', []);
+        msgs.push(txt);
+        LS.set('chatMsgs', msgs);
+        chatInput.value = '';
+        renderChat();
     });
 
-    /* ------------------- 2️⃣ Todo‑list ------------------- */
+    renderChat();
+
+    /* ---------- 2️⃣ Todo‑list ---------- */
     const newTask   = document.getElementById('newTask');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList   = document.getElementById('taskList');
@@ -87,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderTasks();
 
-    /* ------------------- 3️⃣ Bloc‑notes ------------------- */
+    /* ---------- 3️⃣ Bloc‑notes ---------- */
     const noteArea   = document.getElementById('noteArea');
     const saveNoteBtn = document.getElementById('saveNoteBtn');
 
@@ -98,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Note enregistrée');
     });
 
-    /* ------------------- 4️⃣ Calendrier ------------------- */
+    /* ---------- 4️⃣ Calendrier simple ---------- */
     const eventDate   = document.getElementById('eventDate');
     const eventDesc   = document.getElementById('eventDesc');
     const addEventBtn = document.getElementById('addEventBtn');
@@ -132,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderEvents();
 
-    /* ------------------- 7️⃣ Compteur de jours ------------------- */
+    /* ---------- 7️⃣ Compteur de jours ---------- */
     const targetDate = document.getElementById('targetDate');
     const calcBtn    = document.getElementById('calcBtn');
     const resultP    = document.getElementById('result');
@@ -153,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /* ------------------- 11️⃣ Recherche interne ------------------- */
+    /* ---------- 11️⃣ Recherche interne ---------- */
     const searchBox = document.getElementById('searchBox');
     const searchRes = document.getElementById('searchResults');
 
@@ -194,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchBox.addEventListener('input', e => performSearch(e.target.value));
 
-    /* ------------------- 12️⃣ Mode sombre / clair ------------------- */
+    /* ---------- 12️⃣ Mode sombre / clair ---------- */
     const themeToggle = document.getElementById('themeToggle');
 
     function applyTheme(isDark) {
@@ -207,10 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(!currentlyDark);
     });
 
-    // Init depuis le stockage
+    // init from storage
     applyTheme(localStorage.getItem('darkMode') === 'true');
 
-    /* ------------------- 15️⃣ À faire ce week‑end ------------------- */
+    /* ---------- 15️⃣ À faire ce week‑end ---------- */
     const showWeekendBtn = document.getElementById('showWeekendBtn');
     const weekendList    = document.getElementById('weekendList');
 
@@ -231,8 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ----------------
-            weekendList.appendChild(li);
-        });
-    });
+    /* ---------- 17️⃣ Statistiques d’usage ---------- */
+    const visitSpan = document.getElementById('visitCount');
+    let visits = Number(localStorage.getItem('visits') || 0);
+    visits += 1;
+    localStorage.setItem('visits', visits);
+    visitSpan.textContent = visits;
 
+}); // ← fin DOMContentLoaded
+visits += 1;
+localStorage.setItem('visits', visits);
+visitSpan.textContent = visits;

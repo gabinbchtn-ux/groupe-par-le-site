@@ -1,4 +1,4 @@
-/* ==== Reset ==== */
+/* ==== Reset & basics ==== */
 *,
 *::before,
 *::after {
@@ -25,7 +25,7 @@ main {
     margin: 0 auto;
 }
 
-/* ==== Light / Dark ==== */
+/* ==== Light / Dark variables ==== */
 :root {
     --bg: #f5f5f5;
     --txt: #222;
@@ -42,7 +42,7 @@ main {
     --header-bg: #0044aa;
 }
 
-/* ==== Card style ==== */
+/* ==== Cards ==== */
 .card {
     background: var(--card-bg);
     border-radius: 8px;
@@ -66,8 +66,11 @@ main {
     margin: .3rem 0;
 }
 
-/* ==== Lists ==== */
-ul {
+/* ==== Todo ==== */
+#taskList,
+#eventList,
+#weekendList,
+#searchResults {
     list-style: none;
     padding-left: 0;
 }
@@ -106,18 +109,14 @@ footer {
     font-size: .85rem;
 }
 
-/* ==== Responsiveness ==== */
-/* 1 colonne sur petits écrans */
-@media (max-width: 599px) {
-    main { grid-template-columns: 1fr; }
+/* ==== Responsive ==== */
+@media (min-width: 800px) {
+    main {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
-
-/* 2 colonnes à partir de 600 px */
-@media (min-width: 600px) and (max-width: 1199px) {
-    main { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* 3 colonnes à partir de 1200 px */
 @media (min-width: 1200px) {
-    main { grid-template-columns: repeat(3, 1fr); }
+    main {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }

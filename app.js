@@ -29,6 +29,11 @@ firebase.auth().onAuthStateChanged(user => {
   const calendarRef  = db.ref('calendar/events');
   const visitsRef    = db.ref('stats/visits');
 
+   const statusEl = document.getElementById('authStatus');
+statusEl.textContent = `Connecté·e en tant que visiteur (${user.uid.slice(0, 8)}…)`;
+
+   <p id="authStatus"></p>
+
   // --- UI (identique à la version précédente) ---
   document.addEventListener('DOMContentLoaded', () => {
     /* Tout le code que vous aviez déjà (chat, todo, notes, …) */
@@ -278,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+
 
 
 

@@ -2,13 +2,13 @@
    0️⃣ CONFIGURATION FIREBASE (à remplacer par vos valeurs)
    ========================================================= */
 const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://VOTRE_PROJECT_ID.firebaseio.com",
-  projectId: "VOTRE_PROJECT_ID",
-  storageBucket: "VOTRE_PROJECT_ID.appspot.com",
-  messagingSenderId: "VOTRE_SENDER_ID",
-  appId: "VOTRE_APP_ID"
+  apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+    authDomain: "partage-e313d.firebaseapp.com",
+    databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "partage-e313d",
+    storageBucket: "partage-e313d.firebasestorage.app",
+    messagingSenderId: "815247760270",
+    appId: "1:815247760270:web:f079ba6b1a8e22439462df"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -276,3 +276,4 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => console.error('Erreur compteur visite :', err));
 
 }); // ← fin DOMContentLoaded
+

@@ -1,77 +1,76 @@
-/* -------------------------------------------------
-   Helper : connexion Firebase + références DB
-------------------------------------------------- */
+/* =========================================================
+   0️⃣ CONFIGURATION FIREBASE (à remplacer par vos valeurs)
+   ========================================================= */
 const firebaseConfig = {
-  // 👉 Remplacez ces valeurs par celles de votre projet Firebase
-  apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
-  authDomain: "partage-e313d.firebaseapp.com",
-  databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "partage-e313d",
-  storageBucket: "partage-e313d.firebasestorage.app",
-  messagingSenderId: "815247760270",
-  appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+  apiKey: "VOTRE_API_KEY",
+  authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://VOTRE_PROJECT_ID.firebaseio.com",
+  projectId: "VOTRE_PROJECT_ID",
+  storageBucket: "VOTRE_PROJECT_ID.appspot.com",
+  messagingSenderId: "VOTRE_SENDER_ID",
+  appId: "VOTRE_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* -------------------------------------------------
-   Références aux différents nœuds
-------------------------------------------------- */
+/* =========================================================
+   1️⃣ Références aux nœuds de la Realtime Database
+   ========================================================= */
 const chatRef      = db.ref('chat/messages');
 const todoRef      = db.ref('todo/items');
 const notesRef     = db.ref('notes/content');
 const calendarRef  = db.ref('calendar/events');
 const visitsRef    = db.ref('stats/visits');
 
-/* -------------------------------------------------
-   DOMContentLoaded – tout le code UI
-------------------------------------------------- */
+/* =========================================================
+   2️⃣ DOMContentLoaded – toute la logique UI
+   ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
 
-/* ---------- 1️⃣ Chat (Firebase) ---------- */
-const chatWindow = document.getElementById('chatWindow');
-const chatInput  = document.getElementById('chatInput');
-const sendBtn    = document.getElementById('sendBtn');
+  /* ------------------- 1️⃣ Chat ------------------- */
+  const chatWindow = document.getElementById('chatWindow');
+  const chatInput  = document.getElementById('chatInput');
+  const sendBtn    = document.getElementById('sendBtn');
 
-// 1️⃣ Écoute en temps réel – on transforme l'objet en tableau
-chatRef.on('value', snap => {
-  const raw = snap.val();                     // peut être null, un objet ou un tableau
-  const msgs = raw ? Object.values(raw) : []; // <-- conversion sûre
-  chatWindow.innerHTML = '';
+  // 1️⃣1️⃣ Ecoute en temps réel du nœud /chat/messages
+  chatRef.on('value', snap => {
+    const raw = snap.val();                         // peut être null, objet ou tableau
+    const msgs = raw ? Object.values(raw) : [];     // <‑‑ conversion sûre
+    chatWindow.innerHTML = '';
 
-  msgs.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'chat-msg';
-    div.textContent = m.text;                 // on n’affiche que le texte
-    chatWindow.appendChild(div);
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'chat-msg';
+      // Affichage avec heure (optionnel) :
+      const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      div.textContent = `${time} – ${m.text}`;
+      chatWindow.appendChild(div);
+    });
+
+    // Scroll automatique vers le bas
+    chatWindow.scrollTop = chatWindow.scrollHeight;
   });
 
-  // Faire défiler automatiquement vers le bas
-  chatWindow.scrollTop = chatWindow.scrollHeight;
-});
+  // 1️⃣2️⃣ Envoi d’un nouveau message
+  sendBtn.addEventListener('click', () => {
+    const txt = chatInput.value.trim();
+    if (!txt) return;
 
-// 2️⃣ Envoi du message
-sendBtn.addEventListener('click', () => {
-  const txt = chatInput.value.trim();
-  if (!txt) return;
+    const newMsg = {
+      text: txt,
+      timestamp: Date.now()
+    };
 
-  const newMsg = {
-    text: txt,
-    timestamp: Date.now()
-  };
-
-  // `push` crée un enfant avec une clé unique
-  chatRef.push(newMsg).then(() => {
-    // On vide le champ seulement après que l’écriture ait réussi
-    chatInput.value = '';
-  }).catch(err => {
-    console.error('Erreur d\'envoi du message :', err);
+    // push() crée une clé unique, on attend la promesse avant de vider le champ
+    chatRef.push(newMsg)
+      .then(() => { chatInput.value = ''; })
+      .catch(err => console.error('Erreur d’envoi du chat :', err));
   });
-});
 
-  /* ---------- 2️⃣ Todo‑list (Firebase) ---------- */
-  const newTask   = document.getElementById('newTask');
+
+  /* ------------------- 2️⃣ Todo‑list ------------------- */
+  const newTask    = document.getElementById('newTask');
   const addTaskBtn = document.getElementById('addTaskBtn');
   const taskList   = document.getElementById('taskList');
 
@@ -94,6 +93,7 @@ sendBtn.addEventListener('click', () => {
     });
   });
 
+  // Ajouter une tâche
   addTaskBtn.addEventListener('click', () => {
     const txt = newTask.value.trim();
     if (!txt) return;
@@ -105,8 +105,9 @@ sendBtn.addEventListener('click', () => {
     });
   });
 
-  /* ---------- 3️⃣ Bloc‑notes (Firebase) ---------- */
-  const noteArea   = document.getElementById('noteArea');
+
+  /* ------------------- 3️⃣ Bloc‑notes ------------------- */
+  const noteArea    = document.getElementById('noteArea');
   const saveNoteBtn = document.getElementById('saveNoteBtn');
 
   // Charger la note au démarrage
@@ -114,13 +115,15 @@ sendBtn.addEventListener('click', () => {
     noteArea.innerHTML = s.val() || '';
   });
 
+  // Sauvegarder
   saveNoteBtn.addEventListener('click', () => {
-    notesRef.set(noteArea.innerHTML).then(() => {
-      alert('Note enregistrée');
-    });
+    notesRef.set(noteArea.innerHTML)
+      .then(() => alert('Note enregistrée'))
+      .catch(err => console.error('Erreur sauvegarde note :', err));
   });
 
-  /* ---------- 4️⃣ Calendrier (Firebase) ---------- */
+
+  /* ------------------- 4️⃣ Calendrier ------------------- */
   const eventDate   = document.getElementById('eventDate');
   const eventDesc   = document.getElementById('eventDesc');
   const addEventBtn = document.getElementById('addEventBtn');
@@ -134,7 +137,7 @@ sendBtn.addEventListener('click', () => {
       const li = document.createElement('li');
       li.textContent = `${e.date} – ${e.desc}`;
       li.addEventListener('click', () => {
-        // Supprimer l'événement cliqué
+        // Supprimer l’événement cliqué
         calendarRef.once('value').then(s => {
           const arr = s.val() || [];
           arr.splice(i, 1);
@@ -145,6 +148,7 @@ sendBtn.addEventListener('click', () => {
     });
   });
 
+  // Ajouter un événement
   addEventBtn.addEventListener('click', () => {
     if (!eventDate.value || !eventDesc.value.trim()) return;
     const newEvt = { date: eventDate.value, desc: eventDesc.value.trim() };
@@ -157,7 +161,8 @@ sendBtn.addEventListener('click', () => {
     });
   });
 
-  /* ---------- 7️⃣ Compteur de jours (local – pas besoin de Firebase) ---------- */
+
+  /* ------------------- 7️⃣ Compteur de jours (local) ------------------- */
   const targetDate = document.getElementById('targetDate');
   const calcBtn    = document.getElementById('calcBtn');
   const resultP    = document.getElementById('result');
@@ -169,16 +174,13 @@ sendBtn.addEventListener('click', () => {
     const diffMs = target - today;
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays > 0) {
-      resultP.textContent = `Il reste ${diffDays} jour(s)`;
-    } else if (diffDays < 0) {
-      resultP.textContent = `${Math.abs(diffDays)} jour(s) déjà écoulé(s)`;
-    } else {
-      resultP.textContent = "C’est aujourd’hui !";
-    }
+    if (diffDays > 0) resultP.textContent = `Il reste ${diffDays} jour(s)`;
+    else if (diffDays < 0) resultP.textContent = `${Math.abs(diffDays)} jour(s) déjà écoulé(s)`;
+    else resultP.textContent = "C’est aujourd’hui !";
   });
 
-  /* ---------- 11️⃣ Recherche interne (Firebase) ---------- */
+
+  /* ------------------- 11️⃣ Recherche interne ------------------- */
   const searchBox = document.getElementById('searchBox');
   const searchRes = document.getElementById('searchResults');
 
@@ -186,20 +188,20 @@ sendBtn.addEventListener('click', () => {
     const q = query.toLowerCase();
     const hits = [];
 
-    // Note
+    // 1️⃣ Note
     notesRef.once('value').then(s => {
       const note = s.val() || '';
       if (note && note.toLowerCase().includes(q)) {
         hits.push({type:'Note', snippet: note.substring(0,30)+'…'});
       }
 
-      // Todo
+      // 2️⃣ Todo
       todoRef.once('value').then(ts => {
         (ts.val()||[]).forEach(t => {
           if (t.toLowerCase().includes(q)) hits.push({type:'Todo', snippet:t});
         });
 
-        // Events
+        // 3️⃣ Events
         calendarRef.once('value').then(es => {
           (es.val()||[]).forEach(e => {
             if (e.desc.toLowerCase().includes(q) || e.date.includes(q)) {
@@ -225,7 +227,8 @@ sendBtn.addEventListener('click', () => {
 
   searchBox.addEventListener('input', e => performSearch(e.target.value));
 
-  /* ---------- 12️⃣ Mode sombre / clair ---------- */
+
+  /* ------------------- 12️⃣ Mode sombre / clair ------------------- */
   const themeToggle = document.getElementById('themeToggle');
 
   function applyTheme(isDark) {
@@ -237,11 +240,10 @@ sendBtn.addEventListener('click', () => {
     const currentlyDark = document.documentElement.dataset.theme === 'dark';
     applyTheme(!currentlyDark);
   });
-
-  // Init theme from localStorage
   applyTheme(localStorage.getItem('darkMode') === 'true');
 
-  /* ---------- 15️⃣ À faire ce week‑end ---------- */
+
+  /* ------------------- 15️⃣ À faire ce week‑end ------------------- */
   const showWeekendBtn = document.getElementById('showWeekendBtn');
   const weekendList    = document.getElementById('weekendList');
 
@@ -264,14 +266,13 @@ sendBtn.addEventListener('click', () => {
     });
   });
 
-  /* ---------- 17️⃣ Statistiques d’usage (visites) ---------- */
+
+  /* ------------------- 17️⃣ Statistiques d’usage (visites) ------------------- */
   const visitSpan = document.getElementById('visitCount');
 
-  // Incrémenter le compteur à chaque chargement
-  visitsRef.transaction(current => (current || 0) + 1).then(res => {
-    visitSpan.textContent = res.snapshot.val();
-  });
+  // Increment atomically à chaque chargement
+  visitsRef.transaction(cur => (cur || 0) + 1)
+    .then(res => { visitSpan.textContent = res.snapshot.val(); })
+    .catch(err => console.error('Erreur compteur visite :', err));
 
 }); // ← fin DOMContentLoaded
-
-

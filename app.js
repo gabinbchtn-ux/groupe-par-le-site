@@ -29,31 +29,46 @@ const visitsRef    = db.ref('stats/visits');
 ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---------- 1️⃣ Chat (Firebase) ---------- */
-  const chatWindow = document.getElementById('chatWindow');
-  const chatInput  = document.getElementById('chatInput');
-  const sendBtn    = document.getElementById('sendBtn');
+/* ---------- 1️⃣ Chat (Firebase) ---------- */
+const chatWindow = document.getElementById('chatWindow');
+const chatInput  = document.getElementById('chatInput');
+const sendBtn    = document.getElementById('sendBtn');
 
-  // Rendu en temps réel
-  chatRef.on('value', snap => {
-    const msgs = snap.val() || [];
-    chatWindow.innerHTML = '';
-    msgs.forEach(m => {
-      const div = document.createElement('div');
-      div.className = 'chat-msg';
-      div.textContent = m.text;
-      chatWindow.appendChild(div);
-    });
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+// 1️⃣ Écoute en temps réel – on transforme l'objet en tableau
+chatRef.on('value', snap => {
+  const raw = snap.val();                     // peut être null, un objet ou un tableau
+  const msgs = raw ? Object.values(raw) : []; // <-- conversion sûre
+  chatWindow.innerHTML = '';
+
+  msgs.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.textContent = m.text;                 // on n’affiche que le texte
+    chatWindow.appendChild(div);
   });
 
-  sendBtn.addEventListener('click', () => {
-    const txt = chatInput.value.trim();
-    if (!txt) return;
-    const newMsg = { text: txt, timestamp: Date.now() };
-    chatRef.push(newMsg);
+  // Faire défiler automatiquement vers le bas
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+});
+
+// 2️⃣ Envoi du message
+sendBtn.addEventListener('click', () => {
+  const txt = chatInput.value.trim();
+  if (!txt) return;
+
+  const newMsg = {
+    text: txt,
+    timestamp: Date.now()
+  };
+
+  // `push` crée un enfant avec une clé unique
+  chatRef.push(newMsg).then(() => {
+    // On vide le champ seulement après que l’écriture ait réussi
     chatInput.value = '';
+  }).catch(err => {
+    console.error('Erreur d\'envoi du message :', err);
   });
+});
 
   /* ---------- 2️⃣ Todo‑list (Firebase) ---------- */
   const newTask   = document.getElementById('newTask');
@@ -258,4 +273,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 }); // ← fin DOMContentLoaded
+
 

@@ -15,6 +15,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// -------------------------------------------------
+//  Authentification anonyme
+// -------------------------------------------------
+firebase.auth().signInAnonymously()
+  .catch(error => {
+    console.error('Erreur d\'authentification anonyme :', error);
+    // Vous pouvez afficher un message à l'utilisateur si besoin
+  });
+
 /* -------------------------------------------------
    Références aux différents nœuds
 ------------------------------------------------- */
@@ -261,4 +270,5 @@ document.addEventListener('DOMContentLoaded', () => {
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+
 

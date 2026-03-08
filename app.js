@@ -1,235 +1,264 @@
 /* -------------------------------------------------
-   Petite couche d’accès simplifiée à localStorage
+   Helper : connexion Firebase + références DB
 ------------------------------------------------- */
-const LS = {
-    get(key, fallback) {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-    },
-    set(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
-    }
+const firebaseConfig = {
+  // 👉 Remplacez ces valeurs par celles de votre projet Firebase
+  apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+  authDomain: "partage-e313d.firebaseapp.com",
+  databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "partage-e313d",
+  storageBucket: "partage-e313d.firebasestorage.app",
+  messagingSenderId: "815247760270",
+  appId: "1:815247760270:web:f079ba6b1a8e22439462df"
 };
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 /* -------------------------------------------------
-   Tout le code s’exécute après le DOM chargé
+   Références aux différents nœuds
+------------------------------------------------- */
+const chatRef      = db.ref('chat/messages');
+const todoRef      = db.ref('todo/items');
+const notesRef     = db.ref('notes/content');
+const calendarRef  = db.ref('calendar/events');
+const visitsRef    = db.ref('stats/visits');
+
+/* -------------------------------------------------
+   DOMContentLoaded – tout le code UI
 ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ---------- 1️⃣ Chat (local) ---------- */
-    const chatWindow = document.getElementById('chatWindow');
-    const chatInput  = document.getElementById('chatInput');
-    const sendBtn    = document.getElementById('sendBtn');
+  /* ---------- 1️⃣ Chat (Firebase) ---------- */
+  const chatWindow = document.getElementById('chatWindow');
+  const chatInput  = document.getElementById('chatInput');
+  const sendBtn    = document.getElementById('sendBtn');
 
-    function renderChat() {
-        const msgs = LS.get('chatMsgs', []);
-        chatWindow.innerHTML = '';
-        msgs.forEach(m => {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            div.textContent = m;
-            chatWindow.appendChild(div);
+  // Rendu en temps réel
+  chatRef.on('value', snap => {
+    const msgs = snap.val() || [];
+    chatWindow.innerHTML = '';
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'chat-msg';
+      div.textContent = m.text;
+      chatWindow.appendChild(div);
+    });
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  });
+
+  sendBtn.addEventListener('click', () => {
+    const txt = chatInput.value.trim();
+    if (!txt) return;
+    const newMsg = { text: txt, timestamp: Date.now() };
+    chatRef.push(newMsg);
+    chatInput.value = '';
+  });
+
+  /* ---------- 2️⃣ Todo‑list (Firebase) ---------- */
+  const newTask   = document.getElementById('newTask');
+  const addTaskBtn = document.getElementById('addTaskBtn');
+  const taskList   = document.getElementById('taskList');
+
+  // Affichage en temps réel
+  todoRef.on('value', snap => {
+    const tasks = snap.val() || [];
+    taskList.innerHTML = '';
+    tasks.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      li.addEventListener('click', () => {
+        // Supprimer la tâche cliquée
+        todoRef.once('value').then(s => {
+          const arr = s.val() || [];
+          arr.splice(i, 1);
+          todoRef.set(arr);
         });
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+      });
+      taskList.appendChild(li);
+    });
+  });
+
+  addTaskBtn.addEventListener('click', () => {
+    const txt = newTask.value.trim();
+    if (!txt) return;
+    todoRef.once('value').then(s => {
+      const arr = s.val() || [];
+      arr.push(txt);
+      todoRef.set(arr);
+      newTask.value = '';
+    });
+  });
+
+  /* ---------- 3️⃣ Bloc‑notes (Firebase) ---------- */
+  const noteArea   = document.getElementById('noteArea');
+  const saveNoteBtn = document.getElementById('saveNoteBtn');
+
+  // Charger la note au démarrage
+  notesRef.once('value').then(s => {
+    noteArea.innerHTML = s.val() || '';
+  });
+
+  saveNoteBtn.addEventListener('click', () => {
+    notesRef.set(noteArea.innerHTML).then(() => {
+      alert('Note enregistrée');
+    });
+  });
+
+  /* ---------- 4️⃣ Calendrier (Firebase) ---------- */
+  const eventDate   = document.getElementById('eventDate');
+  const eventDesc   = document.getElementById('eventDesc');
+  const addEventBtn = document.getElementById('addEventBtn');
+  const eventList   = document.getElementById('eventList');
+
+  // Affichage en temps réel
+  calendarRef.on('value', snap => {
+    const evts = snap.val() || [];
+    eventList.innerHTML = '';
+    evts.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.textContent = `${e.date} – ${e.desc}`;
+      li.addEventListener('click', () => {
+        // Supprimer l'événement cliqué
+        calendarRef.once('value').then(s => {
+          const arr = s.val() || [];
+          arr.splice(i, 1);
+          calendarRef.set(arr);
+        });
+      });
+      eventList.appendChild(li);
+    });
+  });
+
+  addEventBtn.addEventListener('click', () => {
+    if (!eventDate.value || !eventDesc.value.trim()) return;
+    const newEvt = { date: eventDate.value, desc: eventDesc.value.trim() };
+    calendarRef.once('value').then(s => {
+      const arr = s.val() || [];
+      arr.push(newEvt);
+      calendarRef.set(arr);
+      eventDate.value = '';
+      eventDesc.value = '';
+    });
+  });
+
+  /* ---------- 7️⃣ Compteur de jours (local – pas besoin de Firebase) ---------- */
+  const targetDate = document.getElementById('targetDate');
+  const calcBtn    = document.getElementById('calcBtn');
+  const resultP    = document.getElementById('result');
+
+  calcBtn.addEventListener('click', () => {
+    if (!targetDate.value) return;
+    const today  = new Date();
+    const target = new Date(targetDate.value);
+    const diffMs = target - today;
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      resultP.textContent = `Il reste ${diffDays} jour(s)`;
+    } else if (diffDays < 0) {
+      resultP.textContent = `${Math.abs(diffDays)} jour(s) déjà écoulé(s)`;
+    } else {
+      resultP.textContent = "C’est aujourd’hui !";
     }
+  });
 
-    sendBtn.addEventListener('click', () => {
-        const txt = chatInput.value.trim();
-        if (!txt) return;
-        const msgs = LS.get('chatMsgs', []);
-        msgs.push(txt);
-        LS.set('chatMsgs', msgs);
-        chatInput.value = '';
-        renderChat();
-    });
+  /* ---------- 11️⃣ Recherche interne (Firebase) ---------- */
+  const searchBox = document.getElementById('searchBox');
+  const searchRes = document.getElementById('searchResults');
 
-    renderChat();
+  function performSearch(query) {
+    const q = query.toLowerCase();
+    const hits = [];
 
-    /* ---------- 2️⃣ Todo‑list ---------- */
-    const newTask   = document.getElementById('newTask');
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskList   = document.getElementById('taskList');
+    // Note
+    notesRef.once('value').then(s => {
+      const note = s.val() || '';
+      if (note && note.toLowerCase().includes(q)) {
+        hits.push({type:'Note', snippet: note.substring(0,30)+'…'});
+      }
 
-    function renderTasks() {
-        const tasks = LS.get('tasks', []);
-        taskList.innerHTML = '';
-        tasks.forEach((t, i) => {
-            const li = document.createElement('li');
-            li.textContent = t;
-            li.addEventListener('click', () => {
-                const arr = LS.get('tasks', []);
-                arr.splice(i, 1);
-                LS.set('tasks', arr);
-                renderTasks();
-            });
-            taskList.appendChild(li);
-        });
-    }
-
-    addTaskBtn.addEventListener('click', () => {
-        const txt = newTask.value.trim();
-        if (!txt) return;
-        const arr = LS.get('tasks', []);
-        arr.push(txt);
-        LS.set('tasks', arr);
-        newTask.value = '';
-        renderTasks();
-    });
-
-    renderTasks();
-
-    /* ---------- 3️⃣ Bloc‑notes ---------- */
-    const noteArea   = document.getElementById('noteArea');
-    const saveNoteBtn = document.getElementById('saveNoteBtn');
-
-    noteArea.innerHTML = LS.get('note', '');
-
-    saveNoteBtn.addEventListener('click', () => {
-        LS.set('note', noteArea.innerHTML);
-        alert('Note enregistrée');
-    });
-
-    /* ---------- 4️⃣ Calendrier simple ---------- */
-    const eventDate   = document.getElementById('eventDate');
-    const eventDesc   = document.getElementById('eventDesc');
-    const addEventBtn = document.getElementById('addEventBtn');
-    const eventList   = document.getElementById('eventList');
-
-    function renderEvents() {
-        const evts = LS.get('events', []);
-        eventList.innerHTML = '';
-        evts.forEach((e, i) => {
-            const li = document.createElement('li');
-            li.textContent = `${e.date} – ${e.desc}`;
-            li.addEventListener('click', () => {
-                const arr = LS.get('events', []);
-                arr.splice(i, 1);
-                LS.set('events', arr);
-                renderEvents();
-            });
-            eventList.appendChild(li);
-        });
-    }
-
-    addEventBtn.addEventListener('click', () => {
-        if (!eventDate.value || !eventDesc.value.trim()) return;
-        const evts = LS.get('events', []);
-        evts.push({date: eventDate.value, desc: eventDesc.value.trim()});
-        LS.set('events', evts);
-        eventDate.value = '';
-        eventDesc.value = '';
-        renderEvents();
-    });
-
-    renderEvents();
-
-    /* ---------- 7️⃣ Compteur de jours ---------- */
-    const targetDate = document.getElementById('targetDate');
-    const calcBtn    = document.getElementById('calcBtn');
-    const resultP    = document.getElementById('result');
-
-    calcBtn.addEventListener('click', () => {
-        if (!targetDate.value) return;
-        const today  = new Date();
-        const target = new Date(targetDate.value);
-        const diffMs = target - today;
-        const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-        if (diffDays > 0) {
-            resultP.textContent = `Il reste ${diffDays} jour(s)`;
-        } else if (diffDays < 0) {
-            resultP.textContent = `${Math.abs(diffDays)} jour(s) déjà écoulé(s)`;
-        } else {
-            resultP.textContent = "C’est aujourd’hui !";
-        }
-    });
-
-    /* ---------- 11️⃣ Recherche interne ---------- */
-    const searchBox = document.getElementById('searchBox');
-    const searchRes = document.getElementById('searchResults');
-
-    function performSearch(query) {
-        const q = query.toLowerCase();
-        const hits = [];
-
-        // notes
-        const note = LS.get('note', '');
-        if (note && note.toLowerCase().includes(q)) {
-            hits.push({type: 'Note', snippet: note.substring(0, 30) + '…'});
-        }
-
-        // tasks
-        LS.get('tasks', []).forEach(t => {
-            if (t.toLowerCase().includes(q)) hits.push({type: 'Todo', snippet: t});
+      // Todo
+      todoRef.once('value').then(ts => {
+        (ts.val()||[]).forEach(t => {
+          if (t.toLowerCase().includes(q)) hits.push({type:'Todo', snippet:t});
         });
 
-        // events
-        LS.get('events', []).forEach(e => {
+        // Events
+        calendarRef.once('value').then(es => {
+          (es.val()||[]).forEach(e => {
             if (e.desc.toLowerCase().includes(q) || e.date.includes(q)) {
-                hits.push({type: 'Événement', snippet: `${e.date} – ${e.desc}`});
+              hits.push({type:'Événement', snippet:`${e.date} – ${e.desc}`});
             }
-        });
+          });
 
-        // render
-        searchRes.innerHTML = '';
-        if (hits.length === 0) {
+          // Render
+          searchRes.innerHTML = '';
+          if (hits.length===0) {
             searchRes.innerHTML = '<li>Aucun résultat</li>';
             return;
-        }
-        hits.forEach(h => {
+          }
+          hits.forEach(h => {
             const li = document.createElement('li');
             li.textContent = `[${h.type}] ${h.snippet}`;
             searchRes.appendChild(li);
+          });
         });
-    }
-
-    searchBox.addEventListener('input', e => performSearch(e.target.value));
-
-    /* ---------- 12️⃣ Mode sombre / clair ---------- */
-    const themeToggle = document.getElementById('themeToggle');
-
-    function applyTheme(isDark) {
-        document.documentElement.dataset.theme = isDark ? 'dark' : '';
-        localStorage.setItem('darkMode', isDark);
-    }
-
-    themeToggle.addEventListener('click', () => {
-        const currentlyDark = document.documentElement.dataset.theme === 'dark';
-        applyTheme(!currentlyDark);
+      });
     });
+  }
 
-    // init from storage
-    applyTheme(localStorage.getItem('darkMode') === 'true');
+  searchBox.addEventListener('input', e => performSearch(e.target.value));
 
-    /* ---------- 15️⃣ À faire ce week‑end ---------- */
-    const showWeekendBtn = document.getElementById('showWeekendBtn');
-    const weekendList    = document.getElementById('weekendList');
+  /* ---------- 12️⃣ Mode sombre / clair ---------- */
+  const themeToggle = document.getElementById('themeToggle');
 
-    showWeekendBtn.addEventListener('click', () => {
-        const tasks = LS.get('tasks', []);
-        const filtered = tasks.filter(t =>
-            /week[-\s]?end|samedi|dimanche/i.test(t)
-        );
-        weekendList.innerHTML = '';
-        if (filtered.length === 0) {
-            weekendList.innerHTML = '<li>Aucune tâche prévue pour le week‑end</li>';
-            return;
-        }
-        filtered.forEach(t => {
-            const li = document.createElement('li');
-            li.textContent = t;
-            weekendList.appendChild(li);
-        });
+  function applyTheme(isDark) {
+    document.documentElement.dataset.theme = isDark ? 'dark' : '';
+    localStorage.setItem('darkMode', isDark);
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const currentlyDark = document.documentElement.dataset.theme === 'dark';
+    applyTheme(!currentlyDark);
+  });
+
+  // Init theme from localStorage
+  applyTheme(localStorage.getItem('darkMode') === 'true');
+
+  /* ---------- 15️⃣ À faire ce week‑end ---------- */
+  const showWeekendBtn = document.getElementById('showWeekendBtn');
+  const weekendList    = document.getElementById('weekendList');
+
+  showWeekendBtn.addEventListener('click', () => {
+    todoRef.once('value').then(s => {
+      const tasks = s.val() || [];
+      const filtered = tasks.filter(t =>
+        /week[-\s]?end|samedi|dimanche/i.test(t)
+      );
+      weekendList.innerHTML = '';
+      if (filtered.length===0) {
+        weekendList.innerHTML = '<li>Aucune tâche prévue pour le week‑end</li>';
+        return;
+      }
+      filtered.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t;
+        weekendList.appendChild(li);
+      });
     });
+  });
 
-    /* ---------- 17️⃣ Statistiques d’usage ---------- */
-    const visitSpan = document.getElementById('visitCount');
-    let visits = Number(localStorage.getItem('visits') || 0);
-    visits += 1;
-    localStorage.setItem('visits', visits);
-    visitSpan.textContent = visits;
+  /* ---------- 17️⃣ Statistiques d’usage (visites) ---------- */
+  const visitSpan = document.getElementById('visitCount');
+
+  // Incrémenter le compteur à chaque chargement
+  visitsRef.transaction(current => (current || 0) + 1).then(res => {
+    visitSpan.textContent = res.snapshot.val();
+  });
 
 }); // ← fin DOMContentLoaded
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+

@@ -3,44 +3,27 @@
 ------------------------------------------------- */
 const firebaseConfig = {
   // 👉 Remplacez ces valeurs par celles de votre projet Firebase
-  apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
-  authDomain: "partage-e313d.firebaseapp.com",
-  databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "partage-e313d",
-  storageBucket: "partage-e313d.firebasestorage.app",
-  messagingSenderId: "815247760270",
-  appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+  apiKey: "VOTRE_API_KEY",
+  authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://VOTRE_PROJECT_ID.firebaseio.com",
+  projectId: "VOTRE_PROJECT_ID",
+  storageBucket: "VOTRE_PROJECT_ID.appspot.com",
+  messagingSenderId: "VOTRE_SENDER_ID",
+  appId: "VOTRE_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ---------- Auth anonyme ----------
-firebase.auth().signInAnonymously().catch(err => console.error(err));
+/* -------------------------------------------------
+   Références aux différents nœuds
+------------------------------------------------- */
+const chatRef      = db.ref('chat/messages');
+const todoRef      = db.ref('todo/items');
+const notesRef     = db.ref('notes/content');
+const calendarRef  = db.ref('calendar/events');
+const visitsRef    = db.ref('stats/visits');
 
-// ---------- Attendre que l'utilisateur soit connecté ----------
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) return;               // pas encore prêt
-
-  // --- Références DB ---
-  const chatRef      = db.ref('chat/messages');
-  const todoRef      = db.ref('todo/items');
-  const notesRef     = db.ref('notes/content');
-  const calendarRef  = db.ref('calendar/events');
-  const visitsRef    = db.ref('stats/visits');
-
-  // --- UI (identique à la version précédente) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    /* Tout le code que vous aviez déjà (chat, todo, notes, …) */
-    /* … */
-    
-    // Exemple du compteur de visites (reste le même) :
-    const visitSpan = document.getElementById('visitCount');
-    visitsRef.transaction(cur => (cur || 0) + 1).then(r => {
-      visitSpan.textContent = r.snapshot.val();
-    });
-  });
-});
 /* -------------------------------------------------
    DOMContentLoaded – tout le code UI
 ------------------------------------------------- */
@@ -275,6 +258,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 }); // ← fin DOMContentLoaded
-visits += 1;
-localStorage.setItem('visits', visits);
-visitSpan.textContent = visits;

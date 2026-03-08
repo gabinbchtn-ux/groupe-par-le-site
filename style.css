@@ -109,6 +109,70 @@ footer {
     font-size: .85rem;
 }
 
+/* ==== Améliorations responsive (à placer avant la section Responsive existante) ==== */
+
+/* 1️⃣ Chat – hauteur adaptée aux petits écrans */
+.chat-window {
+    height: 200px;               /* hauteur par défaut (desktop) */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: .5rem;
+    margin-bottom: .5rem;
+    background: #fafafa;
+}
+
+/* Sur les écrans très étroits (smartphones) on augmente légèrement la hauteur */
+@media (max-width: 600px) {
+    .chat-window { height: 250px; }
+}
+
+/* 2️⃣ Inputs & boutons – pleine largeur sur mobile */
+input[type=text],
+input[type=date],
+button {
+    width: 100%;
+    padding: .5rem;
+    font-size: 1rem;
+}
+
+/* Un petit espacement vertical entre les contrôles (utile sur mobile) */
+input[type=text] + button,
+input[type=date] + button,
+button + button {
+    margin-top: .4rem;
+}
+
+/* 3️⃣ Alignement du footer et du header (déjà géré, mais on s’assure que le texte ne déborde pas) */
+header, footer {
+    word-wrap: break-word;
+}
+
+/* 4️⃣ Grid principale – on garde votre logique existante mais on garantit
+   qu’elle s’adapte à 1, 2 ou 3 colonnes selon la largeur. */
+@media (max-width: 799px) {
+    main { grid-template-columns: 1fr; }      /* 1 colonne sur petits écrans */
+}
+@media (min-width: 800px) and (max-width: 1199px) {
+    main { grid-template-columns: repeat(2, 1fr); }  /* 2 colonnes sur moyen */
+}
+@media (min-width: 1200px) {
+    main { grid-template-columns: repeat(3, 1fr); }  /* 3 colonnes sur large */
+}
+
+/* 5️⃣ Listes (todo, events, weekend, recherche) – on enlève le scroll horizontal accidentel */
+#taskList,
+#eventList,
+#weekendList,
+#searchResults {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* 6️⃣ Ajustement du texte des cartes pour éviter les débordements */
+.card {
+    word-break: break-word;
+}
+
 /* ==== Responsive ==== */
 @media (min-width: 800px) {
     main {
@@ -120,3 +184,4 @@ footer {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+

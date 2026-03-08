@@ -15,24 +15,32 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// -------------------------------------------------
-//  Authentification anonyme
-// -------------------------------------------------
-firebase.auth().signInAnonymously()
-  .catch(error => {
-    console.error('Erreur d\'authentification anonyme :', error);
-    // Vous pouvez afficher un message à l'utilisateur si besoin
+// ---------- Auth anonyme ----------
+firebase.auth().signInAnonymously().catch(err => console.error(err));
+
+// ---------- Attendre que l'utilisateur soit connecté ----------
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return;               // pas encore prêt
+
+  // --- Références DB ---
+  const chatRef      = db.ref('chat/messages');
+  const todoRef      = db.ref('todo/items');
+  const notesRef     = db.ref('notes/content');
+  const calendarRef  = db.ref('calendar/events');
+  const visitsRef    = db.ref('stats/visits');
+
+  // --- UI (identique à la version précédente) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    /* Tout le code que vous aviez déjà (chat, todo, notes, …) */
+    /* … */
+    
+    // Exemple du compteur de visites (reste le même) :
+    const visitSpan = document.getElementById('visitCount');
+    visitsRef.transaction(cur => (cur || 0) + 1).then(r => {
+      visitSpan.textContent = r.snapshot.val();
+    });
   });
-
-/* -------------------------------------------------
-   Références aux différents nœuds
-------------------------------------------------- */
-const chatRef      = db.ref('chat/messages');
-const todoRef      = db.ref('todo/items');
-const notesRef     = db.ref('notes/content');
-const calendarRef  = db.ref('calendar/events');
-const visitsRef    = db.ref('stats/visits');
-
+});
 /* -------------------------------------------------
    DOMContentLoaded – tout le code UI
 ------------------------------------------------- */
@@ -270,5 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
 visits += 1;
 localStorage.setItem('visits', visits);
 visitSpan.textContent = visits;
+
 
 

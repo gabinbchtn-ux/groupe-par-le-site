@@ -1,93 +1,196 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Site de partage – version Firebase</title>
-    <link rel="stylesheet" href="style.css">
+/* =========================================================
+   STYLE TERMINAL (VERT/NOIR)
+   ========================================================= */
+// Injection dynamique du style pour l'effet terminal rétro
+const styleTerminal = document.createElement('style');
+styleTerminal.innerHTML = `
+  body {
+    background-color: #000000;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 20px;
+  }
 
+  /* Conteneur principal du chat */
+  #chatContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 2px solid #00ff00;
+    padding: 10px;
+    box-shadow: 0 0 10px #00ff00;
+  }
 
-    <!-- ==== SDK Firebase (compat) ==== -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-</head>
-<body>
-<header>
-    <h1>Notre espace partagé</h1>
-    <button id="themeToggle">🌙 Mode sombre</button>
-</header>
+  /* Zone d'affichage des messages */
+  #chatWindow {
+    background-color: #000000;
+    color: #00ff00;
+    border: 1px solid #003300;
+    height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    text-shadow: 0 0 2px #00ff00; /* Effet de lueur CRT */
+  }
 
-<main>
-    <!-- 1️⃣ Chat en temps réel (Firebase) -->
-    <section class="card" id="chat">
-        <h2>Chat (en ligne)</h2>
-        <div class="chat-window" id="chatWindow"></div>
-        <input type="text" id="chatInput" placeholder="Écrire un message…">
-        <button id="sendBtn">Envoyer</button>
-    </section>
+  /* Style d'un message individuel */
+  .chat-msg {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
 
-    <!-- 2️⃣ Todo‑list partagée (Firebase) -->
-    <section class="card" id="todo">
-        <h2>Todo‑list</h2>
-        <input type="text" id="newTask" placeholder="Nouvelle tâche…">
-        <button id="addTaskBtn">Ajouter</button>
-        <ul id="taskList"></ul>
-    </section>
+  /* Pseudo de l'utilisateur */
+  .chat-author {
+    color: #00ff00;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
 
-    <!-- 3️⃣ Bloc‑notes collaboratif (Firebase) -->
-    <section class="card" id="notes">
-        <h2>Bloc‑notes</h2>
-        <div id="noteArea" contenteditable="true" spellcheck="false"></div>
-        <button id="saveNoteBtn">Enregistrer</button>
-    </section>
+  /* Heure du message */
+  .chat-time {
+    color: #008f11; /* Vert plus foncé */
+    font-size: 0.85em;
+    margin-right: 8px;
+  }
 
-    <!-- 4️⃣ Calendrier partagé (Firebase) -->
-    <section class="card" id="calendar">
-        <h2>Calendrier</h2>
-        <input type="date" id="eventDate">
-        <input type="text" id="eventDesc" placeholder="Description de l’événement">
-        <button id="addEventBtn">Ajouter</button>
-        <ul id="eventList"></ul>
-    </section>
+  /* Zone de saisie (inputs et boutons) */
+  .input-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    <!-- 7️⃣ Compteur de jours -->
-    <section class="card" id="counter">
-        <h2>Compteur de jours</h2>
-        <label for="targetDate">Date cible :</label>
-        <input type="date" id="targetDate">
-        <button id="calcBtn">Calculer</button>
-        <p id="result"></p>
-    </section>
+  input[type="text"], input[type="date"] {
+    background-color: #000;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    padding: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    outline: none;
+  }
 
-    <!-- 11️⃣ Recherche interne -->
-    <section class="card" id="search">
-        <h2>Recherche interne</h2>
-        <input type="text" id="searchBox" placeholder="Rechercher dans notes, tâches, événements…">
-        <ul id="searchResults"></ul>
-    </section>
+  input::placeholder {
+    color: #005500;
+  }
 
-    <!-- 12️⃣ Mode sombre / clair (déjà dans le header) -->
+  button {
+    background-color: #003300;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
 
-    <!-- 15️⃣ À faire ce week‑end -->
-    <section class="card" id="weekend">
-        <h2>À faire ce week‑end</h2>
-        <button id="showWeekendBtn">Afficher les tâches du week‑end</button>
-        <ul id="weekendList"></ul>
-    </section>
+  button:hover {
+    background-color: #00ff00;
+    color: #000;
+  }
 
-    <!-- 17️⃣ Statistiques d’usage -->
-    <section class="card" id="stats">
-        <h2>Statistiques d’usage</h2>
-        <p>Visites totales : <span id="visitCount">0</span></p>
-    </section>
-</main>
+  /* Scrollbar style terminal */
+  #chatWindow::-webkit-scrollbar {
+    width: 10px;
+  }
+  #chatWindow::-webkit-scrollbar-track {
+    background: #000;
+    border-left: 1px solid #003300;
+  }
+  #chatWindow::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border: 1px solid #000;
+  }
+`;
+document.head.appendChild(styleTerminal);
 
-<footer>
-    <small>Créé par Gabin Bucheton – données synchronisées via Firebase.</small>
-</footer>
+/* =========================================================
+   CONFIGURATION FIREBASE (À garder telle quelle)
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCFFI_TOzVlWX1GCAZW4tsx-Z80qqgkXpM",
+  authDomain: "partage-e313d.firebaseapp.com",
+  databaseURL: "https://partage-e313d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "partage-e313d",
+  storageBucket: "partage-e313d.firebasestorage.app",
+  messagingSenderId: "815247760270",
+  appId: "1:815247760270:web:f079ba6b1a8e22439462df"
+};
 
-<!-- Le script qui contient toute la logique (Firebase + UI) -->
-<script src="app.js"></script>
-</body>
-</html>
+// Initialisation (assurez-vous que la librairie Firebase est chargée avant ce script)
+if (typeof firebase !== 'undefined') {
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const chatRef = db.ref('chat/messages');
 
+  /* =========================================================
+     LOGIQUE CHAT
+     ========================================================= */
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    // Récupération des éléments DOM
+    const chatWindow = document.getElementById('chatWindow');
+    const chatInput  = document.getElementById('chatInput');
+    const sendBtn    = document.getElementById('sendBtn');
+    const pseudoInput = document.getElementById('userPseudo'); // Nouveau champ pour le pseudo
+
+    // 1. Écoute en temps réel des messages
+    chatRef.on('value', snap => {
+      const raw = snap.val();
+      const msgs = raw ? Object.values(raw) : [];
+      chatWindow.innerHTML = '';
+
+      msgs.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        
+        const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // Récupération du pseudo (avec fallback "Anonyme" si manquant)
+        const author = m.author || "Anonyme"; 
+        
+        // Affichage formaté : [HEURE] PSEUDO: Message
+        div.innerHTML = `<span class="chat-time">[${time}]</span><span class="chat-author">&lt;${author}&gt;</span> ${m.text}`;
+        
+        chatWindow.appendChild(div);
+      });
+
+      // Scroll automatique vers le bas
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+
+    // 2. Envoi d'un nouveau message
+    sendBtn.addEventListener('click', () => {
+      const txt = chatInput.value.trim();
+      const author = pseudoInput.value.trim(); // Récupération du pseudo saisi
+
+      if (!txt) return;
+      if (!author) {
+        alert("Veuillez entrer un pseudo avant d'envoyer un message.");
+        pseudoInput.focus();
+        return;
+      }
+
+      const newMsg = {
+        text: txt,
+        author: author, // Le pseudo est sauvegardé dans la base
+        timestamp: Date.now()
+      };
+
+      chatRef.push(newMsg)
+        .then(() => { 
+          chatInput.value = ''; 
+          chatInput.focus();
+        })
+        .catch(err => console.error('Erreur d’envoi du chat :', err));
+    });
+
+    // Permettre l'envoi avec la touche Entrée
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+  });
+} else {
+  console.error("Firebase n'est pas chargé. Veuillez inclure le SDK Firebase avant ce script.");
+}
